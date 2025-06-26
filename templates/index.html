@@ -1,0 +1,65 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Resume Analyzer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>📄 AI Resume Analyzer</h1>
+    <form method="POST" enctype="multipart/form-data">
+      <label>Select Job Role:</label>
+      <select name="role" id="role" onchange="toggleCustomInput(this)" required>
+        <option value="" disabled selected>-- Select Job Role --</option>
+        <option value="custom">Custom Role</option>
+        {% for role in roles %}
+          <option value="{{ role }}">{{ role.title() }}</option>
+        {% endfor %}
+      </select>
+
+      <div id="custom-role-box" style="display:none;">
+        <label>Enter Custom Role Name:</label>
+        <input type="text" name="custom_role_name" placeholder="e.g. Cloud Engineer">
+
+        <label>Enter Required Skills (comma-separated):</label>
+        <input type="text" name="custom_skills" placeholder="e.g. docker, kubernetes, aws">
+      </div>
+
+      <label>Upload Resume (PDF):</label>
+      <input type="file" name="resume" required>
+
+      <button type="submit">Analyze</button>
+    </form>
+
+    {% if result %}
+      <div class="results">
+        <h2>📋 Extracted Skills</h2>
+        <p>{{ skills }}</p>
+
+        <h2>🎯 Results for: {{ result.role }}</h2>
+        <p><strong>✅ Matched Skills:</strong> {{ result.matched }}</p>
+        <p><strong>❌ Missing Skills:</strong> {{ result.missing }}</p>
+        <p class="score"><strong>📊 Resume Match Score:</strong> {{ result.score }}%</p>
+
+        {% if suggestions %}
+          <h3>🎓 Recommended Courses</h3>
+          <ul>
+            {% for skill, link in suggestions.items() %}
+              <li><strong>{{ skill }}:</strong> <a href="{{ link }}" target="_blank">View Course</a></li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  <script>
+    function toggleCustomInput(select) {
+      const box = document.getElementById('custom-role-box');
+      box.style.display = (select.value === 'custom') ? 'block' : 'none';
+    }
+  </script>
+</body>
+</html>
